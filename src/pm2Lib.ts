@@ -1,6 +1,7 @@
 import pm2, { Proc, ProcessDescription, StartOptions } from 'pm2';
 import { promisify } from 'util';
 import { EventEmitter } from 'events';
+const path = require('path');
 require("dotenv").config();
 
 export interface IProcessOutLog {
@@ -15,13 +16,16 @@ export interface IProcessOutLog {
 }
 
 class Pm2Lib {
-  private readonly SCRIPT_PATH = process.env.SCRIPT_PATH;
+
+  private readonly path1 = path.resolve(__dirname, '..', 'process');
+  private readonly SCRIPT_PATH = this.path1;
   private readonly ALLPROCESSES = ['whatsapp-web.js'];
 
   private bus: EventEmitter | undefined;
 
   async getProcesses(): Promise<ProcessDescription[]> {
     const processes: ProcessDescription[] = [];
+    
 
     for (const process of this.ALLPROCESSES) {
       const [proc] = await promisify(pm2.describe).call(pm2, process);
@@ -64,6 +68,7 @@ class Pm2Lib {
 
   private getStartOptions(filename: string): StartOptions {
     const alias = filename.replace('.js', '');
+    console.log(this.SCRIPT_PATH);
     return {
       script: `${this.SCRIPT_PATH}/${filename}`,
       name: filename,
