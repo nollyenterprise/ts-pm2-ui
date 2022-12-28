@@ -1,6 +1,7 @@
 import pm2, { Proc, ProcessDescription, StartOptions } from 'pm2';
 import { promisify } from 'util';
 import { EventEmitter } from 'events';
+require("dotenv").config();
 
 export interface IProcessOutLog {
   data: string;
@@ -15,20 +16,20 @@ export interface IProcessOutLog {
 
 class Pm2Lib {
   private readonly SCRIPT_PATH = process.env.SCRIPT_PATH;
-  private readonly MINERS = ['miner01.js', 'miner02.js'];
+  private readonly ALLPROCESSES = ['whatsapp-web.js'];
 
   private bus: EventEmitter | undefined;
 
   async getProcesses(): Promise<ProcessDescription[]> {
     const processes: ProcessDescription[] = [];
 
-    for (const miner of this.MINERS) {
-      const [proc] = await promisify(pm2.describe).call(pm2, miner);
+    for (const process of this.ALLPROCESSES) {
+      const [proc] = await promisify(pm2.describe).call(pm2, process);
       if (proc) {
         processes.push(proc);
       } else {
         processes.push({
-          name: miner,
+          name: process,
           pm2_env: {
             status: 'stopped',
           },
@@ -41,7 +42,6 @@ class Pm2Lib {
 
   async startProcess(filename: string): Promise<Proc> {
     const proc = this.getStartOptions(filename);
-
     return promisify<StartOptions, Proc>(pm2.start).call(pm2, proc);
   }
 

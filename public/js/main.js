@@ -31,28 +31,28 @@
       `;
     }
 
-    async function updateMinersStatus() {
-      const response = await fetch('/miners');
-      const miners = await response.json();
+    async function updateProcessesStatus() {
+      const response = await fetch('/processes');
+      const processes = await response.json();
 
       const trs = [];
-      for (const miner of miners) {
+      for (const process of processes) {
         trs.push(`
-          <tr id="${miner.name}">
-                <td>${miner.name}</td>
-                <td>${getStatusBadge(miner.pm2_env.status)}</td>
+          <tr id="${process.name}">
+                <td>${process.name}</td>
+                <td>${getStatusBadge(process.pm2_env.status)}</td>
                 <td>
                     <div class="btn-group">
                         <button type="button" class="btn btn-default btn-sm">
-                          CPU: ${miner.monit ? miner.monit.cpu : 'N/A'}
+                          CPU: ${process.monit ? process.monit.cpu : 'N/A'}
                         </button>
                         <button type="button" class="btn btn-default btn-sm">
-                          RAM: ${miner.monit ? (miner.monit.memory / (1024 * 1024)).toFixed(1) + ' MB' : 'N/A'}
+                          RAM: ${process.monit ? (process.monit.memory / (1024 * 1024)).toFixed(1) + ' MB' : 'N/A'}
                         </button>
                       </div>
                 </td>
                 <td>
-                    ${getActionButton(miner.pm2_env.status)}
+                    ${getActionButton(process.pm2_env.status)}
                     <button type="button" class="btn btn-outline-success" data-action="restart" title="restart">
                       <i class="bi bi-arrow-repeat"></i>
                     </button>
@@ -61,7 +61,7 @@
         `);
       }
 
-      $('#tbl-miners tbody').html(trs.join(''));
+      $('#tbl-processes tbody').html(trs.join(''));
     }
 
     function showStdLog(process) {
@@ -70,15 +70,17 @@
       socket.removeAllListeners();
 
       socket.on(`${process}:out_log`, (procLog) => {
+        console.log(procLog)
+        console.log(procLog.data)
         $console.append(`<p id="console-text">${procLog.data}</p>`);
         $('#console-background').animate({ scrollTop: $console[0].scrollHeight + 1000 }, 500);
       });
     }
 
-    updateMinersStatus();
+    updateProcessesStatus();
 
     setInterval(() => {
-      updateMinersStatus();
+      updateProcessesStatus();
     }, 15 * 1000);
 
     $(document).on('click', 'button', async function () {
@@ -92,12 +94,12 @@
 
       if (action && process && ['start', 'stop', 'restart'].indexOf(action) >= 0) {
         try {
-          const response = await fetch(`/miners/${process}/${action}`, { method: 'PUT' });
+          const response = await fetch(`/processes/${process}/${action}`, { method: 'PUT' });
           const data = await response.json();
           if (response.status !== 200) {
             throw new Error(data.message);
           }
-          updateMinersStatus();
+          updateProcessesStatus();
         } catch (error) {
           alert(error.message);
         }

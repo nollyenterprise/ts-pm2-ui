@@ -10,11 +10,11 @@ app.get('/', (req, res) => {
   res.redirect('/index.html');
 });
 
-app.get('/miners', async (req, res) => {
+app.get('/processes', async (req, res) => {
   res.json(await pm2Lib.getProcesses());
 });
 
-app.put('/miners/:filename/:action(start|restart|stop)', async (req, res) => {
+app.put('/processes/:filename/:action(start|restart|stop)', async (req, res) => {
   try {
     const { filename, action } = req.params;
 
