@@ -72,7 +72,7 @@
       socket.on(`${process}:out_log`, (procLog) => {
         console.log(procLog)
         console.log(procLog.data)
-        $console.append(`<p id="console-text">${procLog.data}</p>`);
+        $console.append(`<pre id="console-text">${procLog.data}</pre><br />`);
         $('#console-background').animate({ scrollTop: $console[0].scrollHeight + 1000 }, 500);
       });
     }
